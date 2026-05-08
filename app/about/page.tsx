@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Mail } from "lucide-react";
 import { FaLinkedin, FaGithub } from "react-icons/fa6";
 import type { IconType } from "react-icons";
@@ -57,12 +58,15 @@ export default function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-20 sm:py-24">
       <header className="flex items-start gap-6">
-        <div
-          aria-hidden
-          className="flex size-16 shrink-0 items-center justify-center rounded-full border border-border/60 bg-muted/40 font-mono text-sm tracking-wider text-muted-foreground"
-        >
-          RO
-        </div>
+        <Image
+          src="/about/avatar.jpeg"
+          alt={NAME}
+          width={64}
+          height={64}
+          priority
+          className="size-16 shrink-0 rounded-full border border-border/60 object-cover"
+        />
+
         <div className="flex flex-col gap-2 pt-1">
           <p className="font-mono text-xs text-muted-foreground">// about</p>
           <h1 className="text-3xl font-medium tracking-tight">{NAME}</h1>

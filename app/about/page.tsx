@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { Mail } from "lucide-react";
-import {
-  FaLinkedin,
-  FaGithub,
-  FaXTwitter,
-  FaBluesky,
-} from "react-icons/fa6";
+import { FaLinkedin, FaGithub } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 
 export const metadata: Metadata = {
@@ -41,23 +36,13 @@ type SocialLink = {
 const LINKS: SocialLink[] = [
   {
     label: "LinkedIn",
-    href: "https://www.linkedin.com/in/rafaelsztutman",
+    href: "https://www.linkedin.com/in/rafaelloliveira/",
     icon: FaLinkedin,
   },
   {
     label: "GitHub",
     href: "https://github.com/rafaelsztutman",
     icon: FaGithub,
-  },
-  {
-    label: "X",
-    href: "https://x.com/rafaelsztutman",
-    icon: FaXTwitter,
-  },
-  {
-    label: "Bluesky",
-    href: "https://bsky.app/profile/rafaelsztutman.bsky.social",
-    icon: FaBluesky,
   },
   {
     label: "Email",
@@ -78,10 +63,29 @@ export default function AboutPage() {
         >
           RO
         </div>
-        <div className="space-y-2 pt-1">
+        <div className="flex flex-col gap-2 pt-1">
           <p className="font-mono text-xs text-muted-foreground">// about</p>
           <h1 className="text-3xl font-medium tracking-tight">{NAME}</h1>
           <p className="text-muted-foreground">{TAGLINE}</p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {LINKS.map(({ label, href, icon: Icon }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  target={href.startsWith("mailto:") ? undefined : "_blank"}
+                  rel={
+                    href.startsWith("mailto:")
+                      ? undefined
+                      : "noopener noreferrer"
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-card/40 px-2.5 py-1 text-xs text-muted-foreground transition-all hover:border-border hover:bg-card/60 hover:text-foreground"
+                >
+                  <Icon className="size-3.5" aria-hidden />
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </header>
 
@@ -110,29 +114,6 @@ export default function AboutPage() {
                 —
               </span>
               <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="mt-16">
-        <h2 className="mb-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          Elsewhere
-        </h2>
-        <ul className="flex flex-wrap gap-2">
-          {LINKS.map(({ label, href, icon: Icon }) => (
-            <li key={label}>
-              <a
-                href={href}
-                target={href.startsWith("mailto:") ? undefined : "_blank"}
-                rel={
-                  href.startsWith("mailto:") ? undefined : "noopener noreferrer"
-                }
-                className="inline-flex items-center gap-2 rounded-md border border-border/60 bg-card/40 px-3 py-1.5 text-sm text-muted-foreground transition-all hover:border-border hover:bg-card/60 hover:text-foreground"
-              >
-                <Icon className="size-4" aria-hidden />
-                {label}
-              </a>
             </li>
           ))}
         </ul>

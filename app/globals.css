@@ -128,3 +128,30 @@
     @apply font-sans;
   }
 }
+
+/* Dual-theme code blocks via rehype-pretty-code.
+   Default to light theme tokens; swap to dark when html.dark is set. */
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+html.dark code[data-theme*=" "],
+html.dark code[data-theme*=" "] span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+
+/* Inline code blocks (the `code` element directly inside `p`/`li`) keep
+   their bg from mdx-components.tsx; only multi-line `pre > code` gets
+   the shiki-styled treatment. */
+pre code {
+  display: grid;
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+pre code [data-line] {
+  padding: 0 1rem;
+}

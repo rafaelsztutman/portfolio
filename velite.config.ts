@@ -1,4 +1,15 @@
 import { defineConfig, defineCollection, s } from "velite";
+import rehypePrettyCode, {
+  type Options as RehypePrettyCodeOptions,
+} from "rehype-pretty-code";
+
+const prettyCodeOptions: RehypePrettyCodeOptions = {
+  theme: {
+    dark: "github-dark",
+    light: "github-light",
+  },
+  keepBackground: false,
+};
 
 const projects = defineCollection({
   name: "Project",
@@ -47,4 +58,7 @@ export default defineConfig({
     clean: true,
   },
   collections: { projects, writing },
+  mdx: {
+    rehypePlugins: [[rehypePrettyCode, prettyCodeOptions]],
+  },
 });

@@ -11,9 +11,7 @@ export const metadata: Metadata = {
 };
 
 // ─── EDIT ME ──────────────────────────────────────────────────────────────
-// Real values live here. Replace the bio copy, the "currently" bullets, and
-// fill in the social link URLs. The avatar is rendered as initials by default;
-// swap to <Image src="/about/avatar.jpg" /> once you drop a photo in.
+// Tagline, bio, and links live here as constants. Edit and push.
 // ─────────────────────────────────────────────────────────────────────────
 
 const NAME = "Rafael Oliveira";
@@ -23,11 +21,6 @@ const BIO: string[] = [
   "I build AI products and platform infrastructure for B2B SaaS. Currently Group PM at PartnerStack (now part of AppDirect), shipping MCP servers, AI agents, and a small GenAI suite. Before that: AI/ML PM at AWS Envision Engineering, Group PM running the integrations ecosystem at Lever, and a longer career in API platforms going back to CDN/edge work in Brazil.",
   "As the skill barrier to building keeps dropping, my question has shifted from “do I know how?” to “what’s valuable to build, and for whom?” This site is where some of that thinking takes shape: side projects, prototypes, experiments, and posts. Partly a learning log, partly a way to give back to the community that taught me.",
   "Brazilian-Canadian, in Calgary. Husband, father of three.",
-];
-
-const CURRENTLY: string[] = [
-  "Shipping AI features at $WORK.",
-  "Writing about evals, agent design, and PM-AI fluency.",
 ];
 
 type SocialLink = {
@@ -104,25 +97,6 @@ export default function AboutPage() {
             {paragraph}
           </p>
         ))}
-      </section>
-
-      <section className="mt-16">
-        <h2 className="mb-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          Currently
-        </h2>
-        <ul className="space-y-2">
-          {CURRENTLY.map((item, i) => (
-            <li
-              key={i}
-              className="flex gap-3 text-[15px] leading-7 text-muted-foreground"
-            >
-              <span aria-hidden className="select-none text-border">
-                —
-              </span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
       </section>
     </div>
   );

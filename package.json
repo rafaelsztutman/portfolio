@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "velite": "velite",
-    "velite:watch": "velite --watch"
+    "velite:watch": "velite --watch",
+    "new-project": "tsx scripts/new-project.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -38,6 +39,7 @@
     "rehype-pretty-code": "^0.14.3",
     "shiki": "^4.0.2",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "velite": "^0.3.1"
   }

@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# portfolio
 
-## Getting Started
+Source for [my personal portfolio](https://github.com/rafaelsztutman/portfolio) —
+a single Next.js app showcasing AI/PM projects and writing.
 
-First, run the development server:
+This is **my** portfolio, open-sourced honestly. It's not a generic
+template, but the structure is straightforward enough that you can fork it,
+swap the content, and have your own. There's no setup wizard and no CMS —
+adding a project is editing an MDX file and pushing.
+
+## What's in here
+
+- **Next.js 16** App Router, TypeScript, Tailwind v4, shadcn/ui
+- **Velite** for typed content collections (projects + writing) with Zod
+- **Modern AI aesthetic** — restrained palette, monospace accents, subtle
+  signature on the hero. Lucide for UI icons, simple-icons for tech
+  brands. No emojis.
+- **Light + dark themes** with toggle
+- **Static** — no database, no auth, no admin. Adding content is a git push.
+- **MIT** licensed
+
+The full design and architecture decisions live in [`PLAN.md`](./PLAN.md).
+
+## Local dev
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Velite runs once before `dev` and `build` to generate typed content. To live
+reload content changes during dev, run `pnpm velite:watch` in a second
+terminal.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Adding a project
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm new-project
+```
 
-## Learn More
+Walks you through title / slug / summary / tech stack / URLs and writes
+`content/projects/<slug>.mdx` with the section skeleton plus an empty
+`public/projects/<slug>/` folder for the hero image.
 
-To learn more about Next.js, take a look at the following resources:
+Then:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Drop a hero image at `public/projects/<slug>/hero.{png,jpg,webp,svg}`.
+2. Fill in the four MDX sections.
+3. Flip frontmatter `status` from `"draft"` to `"published"` when ready.
+4. Push. Vercel deploys it.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Drafts are visible in `pnpm dev` and on Vercel preview deploys, hidden in
+production.
 
-## Deploy on Vercel
+## Adding a writing entry
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Writing entries are link cards — they point to where the post actually
+lives (Substack, Medium, etc.). To add one:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create `content/writing/<slug>.mdx` with frontmatter only:
+
+   ```yaml
+   ---
+   title: "Post title"
+   slug: "post-slug"
+   summary: "One-line blurb."
+   external_url: "https://example.substack.com/p/..."
+   platform: "Substack"
+   date: "2026-05-08"
+   status: "published"
+   ---
+   ```
+
+2. Drop a hero image at `public/writing/<slug>/hero.{png,jpg,webp,svg}`
+   (typically the social preview image from the post).
+3. Push.
+
+## Deploying
+
+Connect the repo to Vercel and push to `main`. No env vars are required for
+v1. Push to a branch to get a free preview URL with drafts visible — useful
+for sharing in-progress projects before publishing.
+
+## License
+
+[MIT](./LICENSE) © Rafael Oliveira

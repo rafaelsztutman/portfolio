@@ -66,23 +66,48 @@ ticks on the timeline scrubber.
 
 ## What I learned
 
-Two things stuck. First: a sandboxed iframe with `allow-scripts` alone
-has a `null` origin, and most modern React apps quietly do same-URL
-operations (`history.pushState`, location writes) that the browser
-silently blocks for null-origin iframes — halting the prototype
-mid-render with only a thin band visible. The fix is `allow-scripts
-allow-same-origin`, which trades some isolation for prototypes
-actually working. The right production move is to host prototypes on
-a separate subdomain so the same-origin flag doesn't grant access to
-app cookies. The "isolation" mental model is sharper than I had it.
+Three things stuck.
 
-Second: percentage heights through flex chains don't propagate. The
-iframe `<iframe className="h-full">` rendered as 150px (the HTML
-default) until I positioned it absolutely with `inset: 0` inside its
-relative parent — because `flex-1` allocates height at layout time
-but browsers don't reliably let that flow back into a child's
-`height: 100%`. A surprising amount of "this should just fill" hinges
-on the same trick.
+**A Claude Design `.zip` is React at runtime, not static HTML.** The
+export is a single-page React app where every "screen" is component
+state, not a URL. That breaks the obvious "a comment lives at a URL
+plus coordinates" model — the same coordinates land on different
+screens, and React remounts elements on every interaction. The
+anchoring scheme that survived all of that: store a structural CSS
+path plus a content fingerprint (id, sorted classes, first 40 chars
+of text, role, aria-label, `data-*`, parent text) plus the click
+offset within the element. On render, re-resolve in tiers — unique
+path wins outright; ties break by fingerprint score; no-path-match
+falls back to fuzzy tag matching. Pins stick to their element across
+re-renders even though the DOM node identity is gone. This is the
+kind of indirection you don't see coming until you try to comment on
+something that won't sit still.
 
-Both bit me, both are obvious in retrospect, both are exactly the kind
-of thing that doesn't show up in a tutorial.
+**rrweb gives you a tape; "what happened" is your job.** rrweb
+captures everything — mutations, mouse moves, clicks, scrolls, input
+— but the high-level signals a PM actually wants ("dead click,"
+"rage click," "hesitation pause") aren't in the box. You build them
+in two halves. The iframe agent emits a custom `pr_click` event at
+click time with an element label computed by walking up to the
+nearest interactive ancestor, because rrweb's built-in click event
+has only a mirror id, not the kind of `button: "Submit"` string a PM
+wants to read. The server stitches the gzipped chunks at submit, runs
+three pure-function detectors over the timeline, and caches the
+result on the session row. Then I synthesised those insights *back*
+into rrweb custom events and passed them as `tags` to `rrweb-player`,
+which renders them as coloured ticks directly on the progress bar.
+Same data, surfaced as a UX affordance instead of a side panel.
+
+**Trust boundaries shape your architecture.** The reviewer's
+prototype is third-party code that needs to run inside the app and
+report behaviour back. Sandboxed iframes are the right tool, but
+they're stricter than they look: `allow-scripts` alone gives the
+iframe a `null` origin, and most modern React apps quietly do
+same-URL operations (`history.pushState`, location writes) that
+browsers silently block from null origins — halting the prototype
+mid-render. Adding `allow-same-origin` makes the iframe work but lets
+prototype code call your authed APIs as the reviewer, which is a
+real risk if you don't control the upload source. The production
+answer is a separate subdomain so the trust grant doesn't reach app
+cookies. The shorter lesson: every iframe security decision has UX
+consequences and vice versa, and "just sandbox it" rarely covers it.

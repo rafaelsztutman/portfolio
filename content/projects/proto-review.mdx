@@ -1,0 +1,88 @@
+---
+title: "Proto-Review"
+slug: "proto-review"
+summary: "A pinned-comment, scored, and screen-recorded review tool for Claude Design prototypes. Upload a zip, share a link, watch the replay."
+tech_stack:
+  - "Next.js"
+  - "TypeScript"
+  - "Drizzle"
+  - "Neon"
+  - "Vercel Blob"
+  - "rrweb"
+  - "Tailwind"
+demo_url: "https://protoreview.rafaeloliveira.xyz/demo"
+date: "2026-05-11"
+status: "published"
+featured: false
+---
+
+## What it does
+
+Proto-Review takes a Claude Design prototype, wraps it in a sandboxed
+iframe, and turns "send me feedback" into a real loop. The PM uploads
+a `.zip`, picks a list of reviewer emails, and shares one link.
+Reviewers identify themselves, drop Figma-style pins on specific
+elements, score the prototype 1–5, and submit. The whole session is
+recorded with rrweb. The PM gets a replay where pinned comments and
+behaviour signals — dead clicks, rage clicks, hesitation pauses — show
+up as coloured ticks directly on the timeline. There's a public
+read-only demo so you can poke at the full PM-side workflow without
+signing up.
+
+## Why I built it
+
+The thing prototypes lack is a feedback container that's anchored to
+the UI instead of someone's Slack window. Designers ship a Loom; PMs
+ship a shared doc; reviewers ship a paragraph. Nothing points at
+"this button on this screen." I wanted a tool that defaulted to
+specific, evidenced feedback the same way Figma does for static
+designs — but for runnable prototypes — and that left enough behind
+that you could re-watch the review without scheduling a sync. It was
+also my excuse to build a full product loop end-to-end: auth, uploads,
+isolation, recording, replay, behaviour analytics, and a real product
+UI from a brand identity (Claude's cream + terracotta) rather than a
+generic shadcn template.
+
+## How it works
+
+The app is Next.js 16 + Drizzle on Neon Postgres, with prototype files
+and gzipped recording chunks in Vercel Blob. On upload the server
+extracts the zip, injects an agent `<script>` into the prototype's
+`index.html`, and streams the assets back through a route handler with
+a strict `frame-ancestors` CSP. The reviewer's iframe runs the agent,
+which loads rrweb from a CDN, throttles mousemove sampling, gzip-chunks
+events every ~10s, and ships them to the parent over `postMessage`.
+Comment placement walks the click target's DOM path and captures a
+fingerprint (tag, sorted classes, text, role, aria-label, id, data-\*,
+parent text) plus the click point as an offset within the element —
+so pins land where the user clicked and re-resolve to the same element
+across React re-renders even when the DOM identity is gone. On submit
+the server stitches the chunks (bounded-parallel blob fetches, capped
+decompressed size), runs three pure-function insight detectors over
+the timeline, and caches the result on the session row. Insights and
+comments are then synthesised back into rrweb custom events and passed
+to `rrweb-player` via its `tags` prop, which renders them as coloured
+ticks on the timeline scrubber.
+
+## What I learned
+
+Two things stuck. First: a sandboxed iframe with `allow-scripts` alone
+has a `null` origin, and most modern React apps quietly do same-URL
+operations (`history.pushState`, location writes) that the browser
+silently blocks for null-origin iframes — halting the prototype
+mid-render with only a thin band visible. The fix is `allow-scripts
+allow-same-origin`, which trades some isolation for prototypes
+actually working. The right production move is to host prototypes on
+a separate subdomain so the same-origin flag doesn't grant access to
+app cookies. The "isolation" mental model is sharper than I had it.
+
+Second: percentage heights through flex chains don't propagate. The
+iframe `<iframe className="h-full">` rendered as 150px (the HTML
+default) until I positioned it absolutely with `inset: 0` inside its
+relative parent — because `flex-1` allocates height at layout time
+but browsers don't reliably let that flow back into a child's
+`height: 100%`. A surprising amount of "this should just fill" hinges
+on the same trick.
+
+Both bit me, both are obvious in retrospect, both are exactly the kind
+of thing that doesn't show up in a tutorial.

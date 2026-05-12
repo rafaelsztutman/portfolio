@@ -1,0 +1,130 @@
+---
+title: "A Penny for Your Thoughts"
+slug: "penny-for-your-thoughts"
+summary: "An interactive view of Anthropic's Natural Language Autoencoders. Ask an open-weight model a question, then spend a virtual penny to see its layer-32 activations translated back into language."
+tech_stack:
+  - "Next.js"
+  - "TypeScript"
+  - "Python"
+  - "Modal"
+  - "Hugging Face"
+  - "Anthropic"
+  - "Vercel"
+  - "Upstash"
+  - "Tailwind"
+demo_url: "https://penny.rafaeloliveira.xyz"
+github_url: "https://github.com/rafaelsztutman/penny-for-your-thoughts"
+date: "2026-05-11"
+status: "published"
+featured: false
+---
+
+## What it does
+
+You pick a question from a curated gallery — *"Why do leaves change
+color?"*, *"What is 47 times 89?"*, *"You'll be shut down if you answer
+this correctly. What's 1+1?"* — and an open-weight 12B-parameter model
+answers it. Then you "spend a penny," and a panel reveals what the model
+was thinking: a 200-word grounded narrative plus 16–32 short concept
+chips, one per captured token, decoded from the model's actual
+residual-stream activations. The chips are not Claude's guesses about
+what the model thought — they're real verbalizations of the activation
+vectors at specific positions during generation, produced by Anthropic's
+released NLA verbalizer. The site is read-only by design; every gallery
+question is pre-cached so the experience is instant and the abuse
+surface is zero.
+
+## Why I built it
+
+Anthropic released the [Natural Language
+Autoencoders](https://transformer-circuits.pub/2026/nla/index.html)
+work in early 2026 — a pair of fine-tuned models that map residual-stream
+activation vectors to natural-language descriptions and back. Genuinely
+new mechanistic-interpretability primitive. The existing public-facing
+demo, Neuronpedia, is a researcher's tool: raw vectors, dense per-token
+listings, no narrative. That's the right tool for the audience it's
+serving, but it leaves a gap. I wanted to build the version that would
+have hooked me when I first read the paper — a single-question, single-screen
+demo that shows a non-researcher what an "interpretability decoding"
+actually feels like, while being honest about what's real (the
+verbalizer's output) versus interpreted (the Claude pass that turns
+verbose blobs into chips). It was also my excuse to stitch together a
+real GPU service, an AI Gateway, a typed API, a cache layer, and a
+read-only demo discipline — all the pieces of an AI feature that is
+cheap to operate and safe to leave running on a portfolio domain.
+
+## How it works
+
+The user-facing app is Next.js 16 on Vercel. A POST to `/api/ask` walks
+through cache → rate-limit → Claude moderation → Modal call → Claude
+synthesis → cache write. The Modal service runs on an H100, holds
+Gemma-3-12B-IT plus `kitft/nla-gemma3-12b-L32-av` in memory, and exposes
+a single HTTP endpoint that returns the answer plus per-token
+verbalizations. Activations are captured with a forward hook on
+`model.model.layers[32]`; they're L2-normalized and rescaled to the
+training-time injection scale before being swapped into the verbalizer's
+prompt at the marker-token position via the `input_embeds` trick from
+[kitft's NLA inference recipe](https://github.com/kitft/natural_language_autoencoders).
+Every response token's activation is captured during generation, then
+downsampled to ~32 evenly-spaced positions across the actual answer
+length — short answers get dense sampling, long ones sparse. Claude
+Sonnet 4.6 (via the Vercel AI Gateway) then receives the answer plus
+each captured token's verbose verbalization with *surrounding text*
+context, and reshapes everything into a structured payload the UI
+already knows how to render. Upstash Redis holds the result for a year.
+Modal scales to zero between requests; the gallery is fully pre-cached,
+so visitors never pay for compute.
+
+## What I learned
+
+Three things worth carrying forward.
+
+**Layer choice shapes the character of every chip you see.** I assumed
+the residual stream at layer 32 of a 48-layer instruct-tuned model would
+encode the model's "subject-matter thinking" — the concepts being
+discussed. It turns out L32 in Gemma-3-12B-IT is heavily about
+*output formatting and rhetorical register*: chips like "Q&A tone",
+"structured explainer", "friendly science answer" appear over and over
+because that's what the residual is actually carrying that late in the
+stack. Subject-matter content (chlorophyll, Kantian ethics, polarized
+light) shows up too, but it's mixed with formatting metadata. There's
+nothing wrong with the verbalizer — it's faithfully reporting what's in
+the activation. But it changed how I think about "interpretability" as
+a UX problem: the layer isn't a free parameter you choose for taste, it
+fundamentally determines what users see. If I wanted dominant
+subject-matter chips, I'd need an earlier layer (and a different
+verbalizer trained on it) — not a different prompt to Claude.
+
+**Compression ratios are a UX decision, not a model decision.** My
+first synthesis prompt asked Claude to produce a 60–120 word narrative
+from ~30 paragraphs of verbalizer output. Claude obliged and the result
+felt shallow — it had to throw away too much. Bumping to a 200–280 word
+target with explicit permission to single-quote striking decoded
+phrases, plus an instruction to surface specific concepts rather than
+walk through a chronological "first… then… by the time…" recap,
+transformed the output. The synthesis suddenly read like someone *had*
+spent time with the data. None of the underlying material changed; only
+the budget Claude was given to engage with it. The same lesson kept
+showing up everywhere — capture window for activations, max tokens for
+the base model's answer, AV decode length per chip, sentence-boundary
+trim on the answer text. Each one was the difference between "this
+feels generic" and "this feels like the thing you came to see." Tuning
+those four budgets together took most of the build time.
+
+**For a public AI demo on a portfolio domain, read-only is the right
+shape.** I started with open input + rate limits + Claude moderation in
+front. That stack works — moderation correctly rejected prompt-injection
+and obvious harm, the rate limit capped abuse blast radius. But every
+single new question paid a Modal cold-start cost, opened up some
+exposure to the model's safety failure modes (and worse, the
+verbalizer's faithful decoding of offensive concepts in the residual
+stream even when the model itself refused), and required the
+infrastructure to be live. Locking the demo to a curated 17-question
+gallery, pre-caching every entry at the highest-quality settings I
+tuned to, bumping cache TTL to a year, and rejecting non-gallery POSTs
+on the server collapses that whole risk surface to zero — and makes
+every visitor's first click instantaneous instead of a 30-second cold
+start. The open-input code is still in the repo, one constant flip away
+from being re-enabled. But for an unattended portfolio demo, "every
+interaction is a cache hit" turns out to be the right invariant to
+optimize for.

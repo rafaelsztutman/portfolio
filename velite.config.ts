@@ -19,6 +19,7 @@ const projects = defineCollection({
       title: s.string(),
       slug: s.slug("projects"),
       summary: s.string(),
+      tags: s.array(s.string()),
       tech_stack: s.array(s.string()),
       demo_url: s.string().url().optional(),
       github_url: s.string().url().optional(),

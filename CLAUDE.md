@@ -38,6 +38,10 @@ is a git push.
      until ready.
    - `featured: true` + numeric `order` pins to the top of the homepage.
      Use sparingly.
+   - `tags` are 2–4 domain/theme keywords (e.g. "PM Tools", "Session
+     Replay"). Shown on the homepage cards and at the top of the detail
+     page. Distinct from `tech_stack` (which is shown at the bottom of
+     the detail page only).
 
 5. **Push to a branch first.** Vercel preview URL is the place to validate
    layout end-to-end. Merge to `main` only when the project reads well.

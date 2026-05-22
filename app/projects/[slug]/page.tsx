@@ -9,6 +9,7 @@ import { getProject, getProjects } from "@/lib/content";
 import { findHeroImage } from "@/lib/hero-image";
 import { MDXContent } from "@/components/mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
+import { TagChip } from "@/components/tag-chip";
 import { TechChip } from "@/components/tech-chip";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -69,6 +70,13 @@ export default async function ProjectPage({
         <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
           {project.summary}
         </p>
+        {project.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {project.tags.map((label) => (
+              <TagChip key={label} label={label} />
+            ))}
+          </div>
+        )}
         {(project.demo_url || project.github_url) && (
           <div className="flex flex-wrap items-center gap-3 pt-2">
             {project.demo_url && (

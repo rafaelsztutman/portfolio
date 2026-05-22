@@ -69,6 +69,11 @@ async function main() {
   }
 
   const summary = await ask("Summary (one line)");
+  const tagsRaw = await ask("Tags (comma-separated, 2-4 domain/theme keywords)");
+  const tags = tagsRaw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   const techRaw = await ask("Tech stack (comma-separated)");
   const techStack = techRaw
     .split(",")
@@ -79,6 +84,11 @@ async function main() {
 
   rl.close();
 
+  const tagsYaml =
+    tags.length === 0
+      ? "  []"
+      : tags.map((t) => `  - ${JSON.stringify(t)}`).join("\n");
+
   const techYaml =
     techStack.length === 0
       ? "  []"
@@ -88,6 +98,8 @@ async function main() {
 title: ${JSON.stringify(title)}
 slug: ${JSON.stringify(slug)}
 summary: ${JSON.stringify(summary)}
+tags:
+${tagsYaml}
 tech_stack:
 ${techYaml}
 ${demoUrl ? `demo_url: ${JSON.stringify(demoUrl)}\n` : ""}${

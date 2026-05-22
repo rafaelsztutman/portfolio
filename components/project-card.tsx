@@ -3,14 +3,14 @@ import Image from "next/image";
 
 import type { Project } from "@/lib/content";
 import { findHeroImage } from "@/lib/hero-image";
-import { TechChip } from "@/components/tech-chip";
+import { TagChip } from "@/components/tag-chip";
 
 const MAX_CHIPS = 4;
 
 export function ProjectCard({ project }: { project: Project }) {
   const hero = findHeroImage("projects", project.slug);
-  const visibleChips = project.tech_stack.slice(0, MAX_CHIPS);
-  const overflow = project.tech_stack.length - visibleChips.length;
+  const visibleChips = project.tags.slice(0, MAX_CHIPS);
+  const overflow = project.tags.length - visibleChips.length;
 
   return (
     <Link
@@ -43,7 +43,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
         <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2">
           {visibleChips.map((label) => (
-            <TechChip key={label} label={label} />
+            <TagChip key={label} label={label} />
           ))}
           {overflow > 0 && (
             <span className="font-mono text-[11px] text-muted-foreground">

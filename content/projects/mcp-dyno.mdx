@@ -1,0 +1,47 @@
+---
+title: "mcp-dyno"
+slug: "mcp-dyno"
+summary: "An open-source CLI that measures how an MCP server performs when an LLM drives it — across efficiency, cost, context-bloat, correctness, and reliability — and proves before/after changes with paired statistics. It grew out of benchmarking dtc-mcp, when measurement turned out to be harder than the optimization."
+tags:
+  - "MCP"
+  - "AI Tools"
+  - "Evaluation"
+  - "Developer Tools"
+  - "CLI"
+tech_stack:
+  - "TypeScript"
+  - "Node.js"
+  - "MCP SDK"
+  - "Anthropic SDK"
+  - "Commander"
+  - "Vitest"
+github_url: "https://github.com/rafaelsztutman/mcp-dyno"
+date: "2026-06-02"
+status: "published"
+featured: false
+---
+
+## What it does
+
+`mcp-dyno` points at any MCP server (stdio, SSE, or HTTP), drives it with Claude —
+via an Anthropic API key or an existing Claude CLI subscription — and reports five
+lenses in one run: efficiency (tokens, tool-call and discovery round-trips), cost in
+real dollars, context-bloat (a four-channel breakdown of what fills the context
+window), correctness (graded by an LLM judge against per-task criteria), and
+reliability (`pass^k` consistency, hallucinated-tool rate, schema adherence). It
+auto-generates a task suite from the server's own tools, or you can bring your own. A
+local dashboard (`dyno view`) shows the report, per-task transcripts, and a
+side-by-side comparison of any two runs.
+
+`dyno compare` runs a before and after and applies a paired-difference test (with
+minimum-detectable-effect and required-n), so it tells you whether a change is
+statistically resolvable rather than just noise.
+
+## Why I built it
+
+It grew out of benchmarking [dtc-mcp](/projects/dtc-mcp): optimizing the server was
+straightforward, but knowing whether a change actually helped — through the noise of
+LLM runs — was the hard part. I wrote up the full story
+[here](https://rafaeloliveira724209.substack.com/p/i-tried-to-improve-my-mcp-the-hard).
+
+Install with `npx mcp-dyno` · [npm](https://www.npmjs.com/package/mcp-dyno)

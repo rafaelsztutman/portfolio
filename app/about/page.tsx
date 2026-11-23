@@ -7,7 +7,7 @@ import type { IconType } from "react-icons";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Rafael Oliveira — Group PM at PartnerStack (AppDirect). Building AI products and platform infrastructure for B2B SaaS.",
+    "Rafael Oliveira — Head of Product at Accr8. Building AI products and platform infrastructure for B2B SaaS.",
 };
 
 // ─── EDIT ME ──────────────────────────────────────────────────────────────
@@ -18,7 +18,7 @@ const NAME = "Rafael Oliveira";
 const TAGLINE = "Using technology to solve real problems for people.";
 
 const BIO: string[] = [
-  "I build AI products and platform infrastructure for B2B SaaS. Currently Group PM at PartnerStack (now part of AppDirect), shipping MCP servers, AI agents, and a small GenAI suite. Before that: AI/ML PM at AWS Envision Engineering, Group PM running the integrations ecosystem at Lever, and a longer career in API platforms going back to CDN/edge work in Brazil.",
+  "I build AI products and platform infrastructure for B2B SaaS. Currently Head of Product at Accr8 (formerly AuthPlane), working on how companies measure the value of their AI spend. Before that: Group PM at PartnerStack (now part of AppDirect), where I launched the MCP server; AI/ML PM at AWS Envision Engineering; Group PM running the integrations ecosystem at Lever; and a longer career in API platforms going back to CDN/edge work in Brazil.",
   "As the skill barrier to building keeps dropping, my question has shifted from “do I know how?” to “what’s valuable to build, and for whom?” This site is where some of that thinking takes shape: side projects, prototypes, experiments, and posts. Partly a learning log, partly a way to give back to the community that taught me.",
   "Brazilian-Canadian, in Calgary. Husband, father of three.",
 ];

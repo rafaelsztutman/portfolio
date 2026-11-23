@@ -17,8 +17,6 @@ tech_stack:
   - "Framer Motion"
   - "Tailwind"
   - "Replit"
-demo_url: "https://lennys-round-table.replit.app"
-github_url: "https://github.com/rafaelsztutman/lennys-round-table"
 date: "2026-05-26"
 status: "published"
 featured: false
@@ -26,7 +24,7 @@ featured: false
 
 ## What it does
 
-You drag three guests from a 287-person roster — Marty Cagan, Keith Rabois, Elena Verna, April Dunford, whoever — onto seats at a felt table, ask a question about something you're working on, and the seated guests respond as themselves. Every response is grounded in stance cards extracted from the guest's real episodes; tier-1 responses include a verbatim quote with the timestamp it came from. The guests address each other, not just you. When three seats are filled, a "Deal a hand" button appears and you can play no-limit Hold'em with the same three guests, each with persona-driven betting behaviour. Public visitors land in a demo mode that replays curated conversations turn-by-turn; an invite-token path unlocks the live experience.
+You drag three guests from a 286-person roster — Marty Cagan, Keith Rabois, Elena Verna, April Dunford, whoever — onto seats at a felt table, ask a question about something you're working on, and the seated guests respond as themselves. Every response is grounded in stance cards extracted from the guest's real episodes; tier-1 responses include a verbatim quote with the timestamp it came from. The guests address each other, not just you. When three seats are filled, a "Deal a hand" button appears and you can play no-limit Hold'em with the same three guests, each with persona-driven betting behaviour. Public visitors land in a demo mode that replays curated conversations turn-by-turn; an invite-token path unlocks the live experience.
 
 ## Why I built it
 
@@ -34,7 +32,7 @@ Lenny opened the buildathon with a dataset of newsletters and podcast transcript
 
 ## How it works
 
-Each guest is an offline-baked persona pack — a `~50-80 KB` JSON file produced by a 9-stage Node pipeline. Stages: preprocess (filter the guest's speech turns out of speaker-tagged transcripts) → bio → voice anchors (5–10 verbatim quotes for tone imitation) → **stance cards** (the core unit: ~30–80 "this guest believes X" claims per guest, each with a verbatim quote, citation, confidence score, and topic tag, **programmatically validated against the transcript** — if the substring isn't a contiguous match, the stance is dropped) → frameworks → adjacent topics → chunk embeddings → cross-guest disagreement graph → assemble. End state: 287 personas, 3,644 verbatim-validated quotes, 82 cross-guest disagreements, all committed as plain JSON.
+Each guest is an offline-baked persona pack — a `~50-80 KB` JSON file produced by a 9-stage Node pipeline. Stages: preprocess (filter the guest's speech turns out of speaker-tagged transcripts) → bio → voice anchors (5–10 verbatim quotes for tone imitation) → **stance cards** (the core unit: ~30–80 "this guest believes X" claims per guest, each with a verbatim quote, citation, confidence score, and topic tag, **programmatically validated against the transcript** — if the substring isn't a contiguous match, the stance is dropped) → frameworks → adjacent topics → chunk embeddings → cross-guest disagreement graph → assemble. End state: 286 personas, 3,644 verbatim-validated quotes, 82 cross-guest disagreements, all committed as plain JSON.
 
 A single user message goes through three server phases. **Intent scoring** runs a small Claude model in parallel per seated guest — each returns `want_to_speak`, a one-line intent, and which stance cards they'd lean on. A threshold filter picks who actually responds; a guest with nothing useful to add stays silent. **Tiered response** runs a larger model for the selected guests; the prompt includes the guest's persona pack, the other seated guests' names so they can address each other, and the disagreement graph entries that intersect this guest with the others at the table. Responses are constrained to a 5-tier hierarchy: tier 1 must include a verbatim quote; tier 4 is free synthesis with no quote; tier 5 is "I have nothing useful here." Quote-bearing responses are **runtime-validated** against the persona pack's quote pool — if the model invents a quote, the response auto-downgrades to tier 4 instead of publishing the fake.
 
